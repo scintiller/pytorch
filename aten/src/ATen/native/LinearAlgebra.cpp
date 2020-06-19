@@ -518,6 +518,9 @@ Tensor& matmul_out(Tensor &result, const Tensor & tensor1, const Tensor & tensor
 // helper methods for matrix_exp
 namespace {
 
+// Iterates over first `n_batck_dims` and applies `f` to each element.
+// TODO: this implemtation is not efficient, it simply iteratates over
+// batch elements in a serial for-loop.
 template <typename func_t>
 void batch_apply(at::ArrayRef<Tensor> tensors, int64_t n_batch_dims, const func_t& f) {
   // no-op if batch is empty
@@ -779,6 +782,13 @@ Tensor mexp(const Tensor& a) {
 
 };
 
+// Computes the matrix exponential for a given batch of squared matrices.
+// The implementaion is based on:
+//
+// Bader, P.; Blanes, S.; Casas, F.
+// Computing the Matrix Exponential with an Optimized Taylor Polynomial Approximation.
+// Mathematics 2019, 7, 1174.
+//
 Tensor matrix_exp(const Tensor& a) {
   TORCH_CHECK(a.dim() >= 2 && (at::isFloatingType(a.scalar_type()) || at::isComplexType(a.scalar_type())),
               "matrix_exp(", a.scalar_type(), "{", a.sizes(), "}): expected a tensor "
