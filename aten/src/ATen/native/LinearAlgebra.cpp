@@ -822,7 +822,20 @@ Tensor matrix_exp(const Tensor& a) {
 }
 
 Tensor matrix_exp_backward(const Tensor& self, const Tensor& grad) {
-  return grad;
+  auto self_transposed = self.transpose(-2, -1);
+  auto self_transposed_sizes = self_transposed.sizes().vec();
+  self_transposed_sizes[self.dim() - 2] <<= 1;
+  self_transposed_sizes[self.dim() - 1] <<= 1;
+
+  auto n = self_transposed.size(-1);
+  auto meta_grad = at::zeros(self_transposed_sizes, grad.options());
+  meta_grad.narrow(-2, 0, n).narrow(-1, 0, n).copy_(self_transposed);
+  meta_grad.narrow(-2, n, n).narrow(-1, n, n).copy_(self_transposed);
+  meta_grad.narrow(-2, 0, n).narrow(-1, n, n).copy_(grad);
+
+  auto grad_input = at::matrix_exp(meta_grad).narrow(-2, 0, n).narrow(-1, n, n);
+
+  return grad_input;
 }
 
 Tensor matrix_power(const Tensor& a, int64_t n) {
