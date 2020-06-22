@@ -178,12 +178,14 @@ Tensor & _cat_out_cpu(Tensor& result, TensorList tensors, int64_t dim) {
 
   // fast path for single thread when both inputs and result are contiguous and not empty
   allContiguous = allContiguous && result.is_contiguous(first_tensor_mem_format);
+  /*
   bool use_serial_kernel = result.numel() < at::internal::GRAIN_SIZE || at::get_num_threads() == 1;
   ScalarType dtype = notSkippedTensor.scalar_type();
   if (use_serial_kernel && allContiguous && no_type_promotion && (dtype == ScalarType::Double || dtype == ScalarType::Float)) {
     cat_serial_stub(kCPU, result, tensors, dim);
     return result;
   }
+  */
 
   int64_t offset = 0;
   if (reuse_iterator &&
