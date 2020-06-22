@@ -7388,6 +7388,10 @@ class TestTorchDeviceType(TestCase):
     @skipCPUIfNoLapack
     @dtypes(torch.float, torch.double)
     def test_matrix_exp(self, device, dtype):
+        # check zero matrix
+        x = torch.zeros(20, 20, dtype=dtype, device=device)
+        self.assertTrue((x.matrix_exp() == torch.eye(20, 20, dtype=dtype, device=device)).all().item())
+
         def run_test(*n):
             if len(n) <= 2:
                 # symmetric matrix test
