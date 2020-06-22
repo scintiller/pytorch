@@ -821,6 +821,10 @@ Tensor matrix_exp(const Tensor& a) {
   }
 }
 
+Tensor matrix_exp_backward(const Tensor& self, const Tensor& grad) {
+  return grad;
+}
+
 Tensor matrix_power(const Tensor& a, int64_t n) {
   TORCH_CHECK(a.dim() >= 2 && (at::isFloatingType(a.scalar_type()) || at::isComplexType(a.scalar_type())),
               "matrix_power(", a.scalar_type(), "{", a.sizes(), "}): expected a tensor "
